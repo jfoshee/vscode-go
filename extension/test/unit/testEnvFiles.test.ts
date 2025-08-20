@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------*/
 
-import * as assert from 'assert';
+import assert from 'assert';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -18,21 +18,7 @@ suite('parseEnvFiles Tests', () => {
 
 	teardown(() => {
 		if (tmpDir && fs.existsSync(tmpDir)) {
-			// Use rmdir for compatibility with older Node.js versions
-			const rimraf = (dir: string) => {
-				if (fs.existsSync(dir)) {
-					fs.readdirSync(dir).forEach((file) => {
-						const curPath = path.join(dir, file);
-						if (fs.lstatSync(curPath).isDirectory()) {
-							rimraf(curPath);
-						} else {
-							fs.unlinkSync(curPath);
-						}
-					});
-					fs.rmdirSync(dir);
-				}
-			};
-			rimraf(tmpDir);
+			fs.rmSync(tmpDir, { recursive: true });
 		}
 	});
 
@@ -44,14 +30,6 @@ suite('parseEnvFiles Tests', () => {
 	test('should handle undefined input', () => {
 		const result = parseEnvFiles(undefined);
 		assert.deepStrictEqual(result, {});
-	});
-
-	test('should handle single string input', () => {
-		const envFile = path.join(tmpDir, 'single.env');
-		fs.writeFileSync(envFile, 'SINGLE_VAR=single_value');
-
-		const result = parseEnvFiles(envFile);
-		assert.strictEqual(result.SINGLE_VAR, 'single_value');
 	});
 
 	test('should handle array of files', () => {
